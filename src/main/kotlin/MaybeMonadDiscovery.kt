@@ -7,10 +7,14 @@
  */
 
 sealed class Exp {
-    class Val(a: Int): Exp()
-    class Div(a: Exp, b: Exp): Exp()
+    class Val(val a: Int): Exp()
+    class Div(val a: Exp, val b: Exp): Exp()
 }
 
+// This is the most simple and naive solution
 fun evaluator(exp: Exp): Int {
-    return 0
+    return when(exp) {
+        is Exp.Val -> exp.a
+        is Exp.Div -> evaluator(exp.a) / evaluator(exp.b)
+    }
 }
