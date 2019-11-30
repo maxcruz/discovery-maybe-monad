@@ -11,7 +11,8 @@ sealed class Exp {
     class Div(val a: Exp, val b: Exp): Exp()
 }
 
-// This is the most simple and naive solution
+// This is the most simple and naive solution.
+// But, when this method is called with an undefined division the ArithmeticException is thrown :(
 fun evaluator(exp: Exp): Int {
     return when(exp) {
         is Exp.Val -> exp.a

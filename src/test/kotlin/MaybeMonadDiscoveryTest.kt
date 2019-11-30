@@ -1,5 +1,7 @@
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
+
 
 class MaybeMonadDiscoveryTest {
 
@@ -19,5 +21,11 @@ class MaybeMonadDiscoveryTest {
     fun `GIVEN a composed expression WHEN the evaluator is called SHOULD resolve the nested operations`() {
         val composedExpression = evaluator(Exp.Div(Exp.Val(8), Exp.Div(Exp.Val(4), Exp.Val(2))))
         assertEquals(4, composedExpression)
+    }
+
+    @Test
+    fun `GIVEN an undefined division WHEN the evaluator is called SHOULD return null`() {
+        val undefinedDivision = evaluator(Exp.Div(Exp.Val(2), Exp.Val(0)))
+        assertNull(undefinedDivision)
     }
 }
