@@ -19,3 +19,16 @@ fun evaluator(exp: Exp): Int {
         is Exp.Div -> evaluator(exp.a) / evaluator(exp.b)
     }
 }
+
+// Non functional alternatives:
+// - try/catch ArithmeticException = can't be composed, it's not deterministic
+// - return -1 when the divisor is zero: require documentation and it's not referential transparent
+// - return null: it's not expressive, is prone errors (NPE if is consumed from Java, or could be null by another reason)
+
+// So, let's create a safe version of the division and a type to model the undefined
+sealed class Maybe {
+    class Just(x: Int): Maybe()
+    object Nothing: Maybe()
+}
+
+fun safeDivision(x: Int, y: Int): Maybe = if (y == 0) Maybe.Nothing else Maybe.Just(x / y)
