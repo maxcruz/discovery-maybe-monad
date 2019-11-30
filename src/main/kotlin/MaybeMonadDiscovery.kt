@@ -13,27 +13,31 @@ sealed class Exp {
 
 // This is the most simple.
 // Evaluates the division and return a Maybe with Just if the operations complete or with Nothing if is undefined
-fun evaluator(exp: Exp): Maybe {
-    return when(exp) {
+fun evaluator(exp: Exp): Maybe =
+    when(exp) {
         is Exp.Val -> Maybe.Just(exp.a)
         is Exp.Div -> {
-            when (val divisor = evaluator(exp.b)) {
-                is Maybe.Just -> {
-                    when (val dividend = evaluator(exp.a)) {
-                        is Maybe.Just -> safeDivision(dividend.x, divisor.x)
-                        Maybe.Nothing -> Maybe.Nothing
-                    }
-                }
-                Maybe.Nothing -> Maybe.Nothing
-            }
+            val dividend = evaluator(exp.a)
+            val divisor = evaluator(exp.b)
+            dividend.join(divisor, ::safeDivision)
         }
     }
-}
 
 // So, let's create a safe version of the division and a type to model the undefined
 sealed class Maybe {
+
     data class Just(val x: Int): Maybe()
     object Nothing: Maybe()
+
+    // This is the pattern: a maybe unwraps his Just in a function call. No-op on Failure
+    private fun flatMap(f: (x: Int) -> Maybe): Maybe =
+        when (this) {
+            is Just -> f.invoke(x)
+            Nothing -> Nothing
+        }
+
+    // Join applies unwrapped Just value to the block, which should return a Maybe
+    fun join(b: Maybe, f: (Int, Int) -> Maybe): Maybe = flatMap { x -> b.flatMap { y -> f.invoke(x, y) } }
 }
 
 fun safeDivision(x: Int, y: Int): Maybe = if (y == 0) Maybe.Nothing else Maybe.Just(x / y)
