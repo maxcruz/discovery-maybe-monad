@@ -11,23 +11,28 @@ sealed class Exp {
     class Div(val a: Exp, val b: Exp): Exp()
 }
 
-// This is the most simple and naive solution.
-// But, when this method is called with an undefined division the ArithmeticException is thrown :(
-fun evaluator(exp: Exp): Int {
+// This is the most simple.
+// Evaluates the division and return a Maybe with Just if the operations complete or with Nothing if is undefined
+fun evaluator(exp: Exp): Maybe {
     return when(exp) {
-        is Exp.Val -> exp.a
-        is Exp.Div -> evaluator(exp.a) / evaluator(exp.b)
+        is Exp.Val -> Maybe.Just(exp.a)
+        is Exp.Div -> {
+            when (val divisor = evaluator(exp.b)) {
+                is Maybe.Just -> {
+                    when (val dividend = evaluator(exp.a)) {
+                        is Maybe.Just -> safeDivision(dividend.x, divisor.x)
+                        Maybe.Nothing -> Maybe.Nothing
+                    }
+                }
+                Maybe.Nothing -> Maybe.Nothing
+            }
+        }
     }
 }
 
-// Non functional alternatives:
-// - try/catch ArithmeticException = can't be composed, it's not deterministic
-// - return -1 when the divisor is zero: require documentation and it's not referential transparent
-// - return null: it's not expressive, is prone errors (NPE if is consumed from Java, or could be null by another reason)
-
 // So, let's create a safe version of the division and a type to model the undefined
 sealed class Maybe {
-    class Just(x: Int): Maybe()
+    data class Just(val x: Int): Maybe()
     object Nothing: Maybe()
 }
 
