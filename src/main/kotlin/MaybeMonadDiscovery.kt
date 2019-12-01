@@ -41,3 +41,18 @@ sealed class Maybe {
 }
 
 fun safeDivision(x: Int, y: Int): Maybe = if (y == 0) Maybe.Nothing else Maybe.Just(x / y)
+
+/*
+Conclusion:
+
+ We re-discovered the Maybe monad:
+ - the Maybe functor that brings pure values to an impure context
+ - the join sequence that do something with the pure value if succeed
+
+ What is the point?
+ - The same idea works for other effects
+ - Support pure programming with effects
+ - Use of effects in explicit types
+ - Functions that works for any effect
+
+ */
